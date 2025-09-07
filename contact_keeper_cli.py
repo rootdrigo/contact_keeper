@@ -16,24 +16,27 @@ import re
 
 #add a new person
 class Person:
-    def __init__(self, init_type="default", p_name=None, p_number=None, json_data=None):
+    def __init__(self, init_type="default", p_name=None, p_phone=None, p_email=None json_data=None):
         if init_type == "default":
             self.name = p_name
-            self.number = p_number
+            self.phone = p_phone
+            self.email = p_email
         elif init_type == "json":
             self.name = json_data["name"]
-            self.number = json_data["number"]
+            self.phone = json_data["phone"]
+            self.email = json_data["email"]
 
     def __str__(self):
-        return f"\t{self.name}\t\t{self.number}"
+        return f"\t{self.name}\t\t{self.phone}\t\t{self.email}"
 
     def to_json(self):
         return {
                 "name" : self.name,
-                "number" : self.number
+                "phone" : self.phone,
+                "email" : self.email
                 }
 
-FILE_NAME = "contact_keeper_cli.json"
+FILE_NAME = "contacts.json"
 file = None
 def initialize():
     try:
@@ -60,8 +63,9 @@ def print_file():
 
 def add():
     new_name = input("Name = ")
-    new_number = input("Number = ")
-    new_person = Person(init_type="default",p_name = new_name, p_number = new_number)
+    new_phone = input("Phone = ")
+    new_email = input("Email = ")
+    new_person = Person(init_type="default",p_name = new_name, p_phone = new_phone, p_email = new_email)
     print(json.dumps(new_person.to_json()))
     save(new_person)
 
