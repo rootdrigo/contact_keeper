@@ -16,7 +16,7 @@ import re
 
 #add a new person
 class Person:
-    def __init__(self, init_type="default", p_name=None, p_phone=None, p_email=None json_data=None):
+    def __init__(self, init_type="default", p_name=None, p_phone=None, p_email=None, json_data=None):
         if init_type == "default":
             self.name = p_name
             self.phone = p_phone
@@ -69,19 +69,35 @@ def add():
     print(json.dumps(new_person.to_json()))
     save(new_person)
 
-def search():
+def search(mode=None):
     search_term = input("Search > ")
     search_reg = ".+" + search_term  + ".*"
+    search_result = []
     with open(FILE_NAME) as f:
-        search_result = []
         for line in f:
             res = re.search(search_reg, line)
             if res:
                 search_result.append(res)
         clear_screen()
-        for res in search_result:
-            print(res)
-    input("[ENTER to Continue]")
+        if len(search_result) == 0:
+            print("No entry found")
+            input("[press ENTRE to Continue]")
+        elif mode == None:
+            for res in search_result:
+                print(res)
+            input("[press ENTER to Continue]")
+        elif mode in ["Modify", "Delete"]:
+            return search_result
+
+def modify():
+    search_result = search(mode = "Modify")
+    if search_result:
+        pass
+
+def delete():
+    search_result = search(mode = "Delete")
+    if search_result:
+        pass
 
 def clear_screen():
     if os.name == "nt":
@@ -102,5 +118,9 @@ def option_menu():
                 add()
             case "S":
                 search()
+            case "M":
+                modify()
+            case "D":
+                delete()
 
 option_menu()
