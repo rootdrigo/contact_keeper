@@ -51,10 +51,11 @@ initialize()
 def save(person):
     file = open(FILE_NAME, "at")
     file.write(json.dumps(person.to_json()))
+    file.write("\n")
     file.close()
 
 def print_file():
-    print("\t~~~ CONTACT KEEPER ~~~\t")
+    print("\t\t~~~ CONTACT KEEPER ~~~")
     with open(FILE_NAME) as f:
         for line in f:
             #print(line.readline())
@@ -83,8 +84,10 @@ def search(mode=None):
             print("No entry found")
             input("[press ENTRE to Continue]")
         elif mode == None:
+            p_person = None
             for res in search_result:
-                print(res)
+                p_person = Person(init_type="json", json_data=json.loads(res.group(0)))
+                print(p_person)
             input("[press ENTER to Continue]")
         elif mode in ["Modify", "Delete"]:
             return search_result
@@ -92,7 +95,23 @@ def search(mode=None):
 def modify():
     search_result = search(mode = "Modify")
     if search_result:
-        pass
+        p_person = None
+        for idx, res in enumerate(search_result):
+            p_person = Person(init_type="json", json_data=json.loads(res.group(0)))
+            print(idx+1,"- ", p_person)
+        if len(search_result) > 1:
+            selection = input("select the Index to modify or C to cancel")
+            if selection in ["c", "C"]:
+                return None
+            for idx, res in enumerate(search_result):
+                if idx == (selection - 1):
+                    p_person = Person(init_type="json", json_data=json.loads(res.group(0)))
+        clear_screen()
+        print(p_person)
+        new_name = input("Enter new Name or ENTER to skip")
+        new_phone = input("Enter new Phone or ENTER to skip")
+        new_email = input("Enter new Email or ENTER to skip")
+        input("[press ENTER to Continue]")
 
 def delete():
     search_result = search(mode = "Delete")
