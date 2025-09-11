@@ -55,7 +55,7 @@ def save(person):
     file.close()
 
 def print_file():
-    print("\t\t~~~ CONTACT KEEPER ~~~")
+    print("\t\t\t~~~ CONTACT KEEPER ~~~")
     with open(FILE_NAME) as f:
         for line in f:
             #print(line.readline())
@@ -90,32 +90,42 @@ def search(mode=None):
                 print(p_person)
             input("[press ENTER to Continue]")
         elif mode in ["Modify", "Delete"]:
-            return search_result
+            return search_result_selection(search_result)
 
-def modify():
-    search_result = search(mode = "Modify")
+def search_result_selection(search_result):
     if search_result:
         p_person = None
         for idx, res in enumerate(search_result):
             p_person = Person(init_type="json", json_data=json.loads(res.group(0)))
             print(idx+1,"- ", p_person)
-        if len(search_result) > 1:
-            selection = input("select the Index to modify or C to cancel")
-            if selection in ["c", "C"]:
-                return None
-            for idx, res in enumerate(search_result):
-                if idx == (selection - 1):
-                    p_person = Person(init_type="json", json_data=json.loads(res.group(0)))
+        selection = input("select the Contact Index or C to cancel > ")
+        if selection in ["c", "C"]:
+            return None
+        for idx, res in enumerate(search_result):
+            if idx == (int(selection) - 1):
+                p_person = Person(init_type="json", json_data=json.loads(res.group(0)))
         clear_screen()
         print(p_person)
-        new_name = input("Enter new Name or ENTER to skip")
+        return p_person
+    return None
+
+def modify():
+    person_to_modify = search(mode = "Modify")
+    if person_to_modify:
+        new_name = input("\nEnter new Name or ENTER to skip")
         new_phone = input("Enter new Phone or ENTER to skip")
         new_email = input("Enter new Email or ENTER to skip")
+        with open(".aux.json","wt") as aux_f:
+            with open(FILE_NAME) as f:
+                for line in f:
+                    # MISSING HOW TO COMPARE LINE AND PERSON
+                    if line == str(person_to_modify):
+                        print("found the one to modify")
         input("[press ENTER to Continue]")
 
 def delete():
-    search_result = search(mode = "Delete")
-    if search_result:
+    person_to_delete = search(mode = "Delete")
+    if person_to_delete:
         pass
 
 def clear_screen():
@@ -125,6 +135,7 @@ def clear_screen():
         _ = os.system('clear')
 
 def option_menu():
+    clear_screen()
     option = None
     while option != "E":
         clear_screen()
