@@ -95,6 +95,7 @@ def search(mode=None):
 def search_result_selection(search_result):
     if search_result:
         p_person = None
+        p_person_json = None
         for idx, res in enumerate(search_result):
             p_person = Person(init_type="json", json_data=json.loads(res.group(0)))
             print(idx+1,"- ", p_person)
@@ -104,22 +105,22 @@ def search_result_selection(search_result):
         for idx, res in enumerate(search_result):
             if idx == (int(selection) - 1):
                 p_person = Person(init_type="json", json_data=json.loads(res.group(0)))
+                p_person_json = res.group(0)
         clear_screen()
         print(p_person)
-        return p_person
+        return p_person_json
     return None
 
 def modify():
     person_to_modify = search(mode = "Modify")
     if person_to_modify:
-        new_name = input("\nEnter new Name or ENTER to skip")
-        new_phone = input("Enter new Phone or ENTER to skip")
-        new_email = input("Enter new Email or ENTER to skip")
+        new_name = input("\nEnter new Name or ENTER to skip > ")
+        new_phone = input("Enter new Phone or ENTER to skip > ")
+        new_email = input("Enter new Email or ENTER to skip > ")
         with open(".aux.json","wt") as aux_f:
             with open(FILE_NAME) as f:
                 for line in f:
-                    # MISSING HOW TO COMPARE LINE AND PERSON
-                    if line == str(person_to_modify):
+                    if line.rstrip() == person_to_modify.rstrip():
                         print("found the one to modify")
         input("[press ENTER to Continue]")
 
