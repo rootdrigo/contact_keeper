@@ -1,4 +1,4 @@
-#basic functionality CRUD
+#basic functionality CRUD + S
 #C - add a new Person with name and contact number
 #R - print the list of current People on the list
 #U - allow you to modify the contacts
@@ -6,9 +6,9 @@
 #S - search a particular Person
 
 #considerations:
-#   save to .json file
-#   alphabetic ordering list
-#   search by name or number, message if can't be found
+# [x]  save to .json file
+# [x]  alphabetic ordering list
+# [x]  search by any field, message if can't be found
 
 import json
 import os
@@ -62,6 +62,16 @@ def print_file():
             contact_json = Person(init_type = "json", json_data = json.loads(line))
             print(contact_json)
 
+def sort_file():
+    lines, sorted_lines = [], []
+    with open(FILE_NAME) as f:
+        for line in f:
+            lines.append(line)
+        sorted_lines = sorted(lines)
+    with open(FILE_NAME,"wt") as f:
+        for s_line in sorted_lines:
+            f.write(s_line)
+
 def add():
     new_name = input("Name = ")
     new_phone = input("Phone = ")
@@ -69,6 +79,7 @@ def add():
     new_person = Person(init_type="default",p_name = new_name, p_phone = new_phone, p_email = new_email)
     print(json.dumps(new_person.to_json()))
     save(new_person)
+    sort_file()
 
 def search(mode=None):
     search_term = input("Search > ")
@@ -83,6 +94,8 @@ def search(mode=None):
         if len(search_result) == 0:
             print("No entry found")
             input("[press ENTRE to Continue]")
+            if mode in ["Modify", "Delete"]:
+                return None, None
         elif mode == None:
             p_person = None
             for res in search_result:
@@ -101,33 +114,48 @@ def search_result_selection(search_result):
             print(idx+1,"- ", p_person)
         selection = input("select the Contact Index or C to cancel > ")
         if selection in ["c", "C"]:
-            return None
+            return None, None
         for idx, res in enumerate(search_result):
             if idx == (int(selection) - 1):
                 p_person = Person(init_type="json", json_data=json.loads(res.group(0)))
                 p_person_json = res.group(0)
         clear_screen()
         print(p_person)
-        return p_person_json
-    return None
+        return p_person_json, p_person
+    return None, None
 
 def modify():
-    person_to_modify = search(mode = "Modify")
-    if person_to_modify:
+    target_json, p_target = search(mode = "Modify")
+    if target_json != None:
         new_name = input("\nEnter new Name or ENTER to skip > ")
+        new_name = p_target.name if new_name == "" else new_name
         new_phone = input("Enter new Phone or ENTER to skip > ")
+        new_phone = p_target.phone if new_phone == "" else new_phone
         new_email = input("Enter new Email or ENTER to skip > ")
+        new_email = p_target.email if new_email == "" else new_email
+        new_person = Person(init_type="default",p_name = new_name, p_phone = new_phone, p_email = new_email)
         with open(".aux.json","wt") as aux_f:
             with open(FILE_NAME) as f:
                 for line in f:
-                    if line.rstrip() == person_to_modify.rstrip():
+                    if line.rstrip() == target_json.rstrip():
                         print("found the one to modify")
-        input("[press ENTER to Continue]")
+                        aux_f.write(json.dumps(new_person.to_json()))
+                        aux_f.write("\n")
+                    else:
+                        aux_f.write(line)
+        os.remove(FILE_NAME)
+        os.rename(".aux.json",FILE_NAME)
 
 def delete():
-    person_to_delete = search(mode = "Delete")
-    if person_to_delete:
-        pass
+    target_json, p_target = search(mode = "Delete")
+    if target_json != None:
+        with open(".aux.json","wt") as aux_f:
+            with open(FILE_NAME) as f:
+                for line in f:
+                    if line.rstrip() != target_json.rstrip():
+                        aux_f.write(line)
+        os.remove(FILE_NAME)
+        os.rename(".aux.json",FILE_NAME)
 
 def clear_screen():
     if os.name == "nt":
